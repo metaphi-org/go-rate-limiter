@@ -46,7 +46,7 @@ func IsRateLimitBreached(
 #### Example
 
 ```go
-configs := []RateLimitConfig{
+configs := []goratelimiter.RateLimitConfig{
     {
         Name:        "API Requests",
         Identifier:  "user_123",
@@ -55,7 +55,7 @@ configs := []RateLimitConfig{
     },
 }
 
-breached, results, err := IsRateLimitBreached(context.Background(), configs, dynamoDBDatastore)
+breached, results, err := goratelimiter.IsRateLimitBreached(context.Background(), configs, dynamoDBDatastore)
 if err != nil {
     log.Fatal("Error checking rate limit:", err)
 }
