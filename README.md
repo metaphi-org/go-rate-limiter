@@ -28,7 +28,7 @@ func IsRateLimitBreached(
     ctx context.Context,
     configs []RateLimitConfig,
     ds datastore.Datastore,
-) (bool, []ConfigResult, error)
+) (bool, ConfigResults, error)
 ```
 
 #### Parameters
@@ -40,7 +40,7 @@ func IsRateLimitBreached(
 #### Return Values
 
 - **`bool`**: Indicates whether any of the provided rate limits have been breached.
-- **`[]ConfigResult`**: Provides detailed results for each rate limit configuration, including the current usage count and the original configuration.
+- **`ConfigResults`**: Provides detailed results for each rate limit configuration, including the current usage count and the original configuration.
 - **`error`**: Returns any errors encountered during the rate limit check.
 
 #### Example
