@@ -9,7 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/metaphi-org/go-rate-limiter/go-rate-limiter/datastore"
+	"github.com/metaphi-org/go-rate-limiter/goratelimiter/datastore"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +30,11 @@ func GetDynamoDbDataStore(ctx context.Context) datastore.Datastore {
 	return datastore.NewDynamoDBDatastore(
 		cfg,
 		"rate_limiter_test",
-		"pk",
+		func(id string) map[string]string {
+			return map[string]string{
+				"pk": id,
+			}
+		},
 		"ttl",
 		"incr_count",
 	)

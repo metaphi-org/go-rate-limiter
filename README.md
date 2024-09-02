@@ -50,7 +50,7 @@ configs := []goratelimiter.RateLimitConfig{
     {
         Name:        "API Requests",
         Identifier:  "user_123",
-        Granularity: GranularityMinute,
+        Granularity: goratelimiter.GranularityMinute,
         MaxRequests: 100,
     },
 }

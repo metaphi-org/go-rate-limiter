@@ -6,9 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
-	"github.com/metaphi-org/go-rate-limiter/go-rate-limiter/datastore"
+	"github.com/metaphi-org/go-rate-limiter/goratelimiter/datastore"
 )
 
 type Granularity string
@@ -73,11 +74,25 @@ func (cr ConfigResult) IsBreached() bool {
 	return cr.UsedCount > cr.Config.MaxRequests
 }
 
+func (cr ConfigResult) String() string {
+	return fmt.Sprintf("%s: %d/%d per %s", cr.Config.Name, cr.UsedCount, cr.Config.MaxRequests, cr.Config.Granularity)
+}
+
+type ConfigResults []ConfigResult
+
+func (crs ConfigResults) LimitsMsg() string {
+	msgs := make([]string, len(crs))
+	for i, cr := range crs {
+		msgs[i] = cr.String()
+	}
+	return strings.Join(msgs, "\n")
+}
+
 func IsRateLimitBreached(
 	ctx context.Context,
 	configs []RateLimitConfig,
 	ds datastore.Datastore,
-) (bool, []ConfigResult, error) {
+) (bool, ConfigResults, error) {
 	incrKeys := make([]datastore.KeyConfig, len(configs))
 
 	for i, config := range configs {

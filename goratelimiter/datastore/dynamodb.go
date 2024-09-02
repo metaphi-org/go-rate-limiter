@@ -16,16 +16,22 @@ import (
 type dynamoDBDatastore struct {
 	svc       *dynamodb.Client
 	tableName string
-	pkAttr    string // Attribute name for the Primary Key
-	ttlAttr   string // Attribute name for the TTL (time-to-live)
-	countAttr string // Attribute name for the count
+	keyGetter func(identifier string) map[string]string // Key getter using the identifier provided. Depending on your primary key and sort key schema, generate relevant map.
+	ttlAttr   string                                    // Attribute name for the TTL (time-to-live)
+	countAttr string                                    // Attribute name for the count
 }
 
-func NewDynamoDBDatastore(cfg aws.Config, tableName, pkAttr, ttlAttr, countAttr string) *dynamoDBDatastore {
+func NewDynamoDBDatastore(
+	cfg aws.Config,
+	tableName string,
+	keyGetter func(identifier string) map[string]string,
+	ttlAttr string,
+	countAttr string,
+) *dynamoDBDatastore {
 	return &dynamoDBDatastore{
 		svc:       dynamodb.NewFromConfig(cfg),
 		tableName: tableName,
-		pkAttr:    pkAttr,
+		keyGetter: keyGetter,
 		ttlAttr:   ttlAttr,
 		countAttr: countAttr,
 	}
@@ -61,12 +67,16 @@ func (d *dynamoDBDatastore) IncrKeys(ctx context.Context, keys []KeyConfig) ([]i
 				return
 			}
 
+			keyMap, err := attributevalue.MarshalMap(d.keyGetter(keyConfig.Key))
+			if err != nil {
+				errs[i] = fmt.Errorf("failed to build DynamoDB key map: %v", err)
+				return
+			}
+
 			// Create the UpdateItem input
 			input := &dynamodb.UpdateItemInput{
-				TableName: aws.String(d.tableName),
-				Key: map[string]types.AttributeValue{
-					d.pkAttr: &types.AttributeValueMemberS{Value: keyConfig.Key},
-				},
+				TableName:                 aws.String(d.tableName),
+				Key:                       keyMap,
 				UpdateExpression:          expr.Update(),
 				ConditionExpression:       expr.Condition(),
 				ExpressionAttributeNames:  expr.Names(),
