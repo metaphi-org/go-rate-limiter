@@ -14,12 +14,12 @@ import (
 
 type Granularity string
 
-const GranularitySecond Granularity = "SECOND"
-const GranularityMinute Granularity = "MINUTE"
-const GranularityHour Granularity = "HOUR"
-const GranularityDay Granularity = "DAY"
-const GranularityWeek Granularity = "WEEK"
-const GranularityMonth Granularity = "MONTH"
+const GranularitySecond Granularity = "Second"
+const GranularityMinute Granularity = "Minute"
+const GranularityHour Granularity = "Hour"
+const GranularityDay Granularity = "Day"
+const GranularityWeek Granularity = "Week"
+const GranularityMonth Granularity = "Month"
 
 var expiryMap = map[Granularity]time.Duration{
 	GranularitySecond: 1 * time.Second,
@@ -60,7 +60,7 @@ func getKey(time time.Time, identifier string, granularity Granularity) datastor
 	identifierHash := sha256.Sum256([]byte(identifier))
 
 	return datastore.KeyConfig{
-		Key:         fmt.Sprintf("ratelimiter:%x:%s:%s", identifierHash, granularity, timeString),
+		Key:         fmt.Sprintf("ratelimiter:%x:%s:%s", identifierHash, strings.ToUpper(string(granularity)), timeString),
 		MaxLifespan: expiryMap[granularity],
 	}
 }
