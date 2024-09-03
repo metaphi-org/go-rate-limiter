@@ -7,7 +7,7 @@
 - **Granular Rate Limiting**: Supports rate limiting across different time granularities, such as seconds, minutes, hours, days, weeks, and months.
 - **Customizable**: Define your own rate-limiting configurations with ease.
 - **Safe Increments**: Ensures atomic updates and handles race conditions during increments.
-- **DynamoDB Support**: Built-in support for DynamoDB as the datastore for distributed rate limiting.
+- **DynamoDB and Redis Support**: Built-in support for DynamoDB and Redis as datastores for distributed rate limiting.
 
 ## Installation
 
@@ -35,7 +35,7 @@ func IsRateLimitBreached(
 
 - **`ctx`**: The context for controlling request timeouts and cancellations.
 - **`configs`**: A list of `RateLimitConfig` objects, each specifying the rate limit configuration, including the identifier, granularity, and maximum allowed requests.
-- **`ds`**: An implementation of the `Datastore` interface, such as DynamoDB, which handles key increments and TTL management.
+- **`ds`**: An implementation of the `Datastore` interface, such as DynamoDB or Redis, which handles key increments and TTL management.
 
 #### Return Values
 
@@ -55,7 +55,14 @@ configs := []goratelimiter.RateLimitConfig{
     },
 }
 
+// Example using DynamoDB
 breached, results, err := goratelimiter.IsRateLimitBreached(context.Background(), configs, dynamoDBDatastore)
+if err != nil {
+    log.Fatal("Error checking rate limit:", err)
+}
+
+// Example using Redis
+breached, results, err = goratelimiter.IsRateLimitBreached(context.Background(), configs, redisDatastore)
 if err != nil {
     log.Fatal("Error checking rate limit:", err)
 }
@@ -70,6 +77,7 @@ if breached {
 ## Supported Datastores
 
 - **DynamoDB**: Efficiently handles rate limit state management with atomic increments and TTL support.
+- **Redis**: Provides fast, in-memory data management with atomic increments and flexible TTL handling.
 
 ## Contributing
 
